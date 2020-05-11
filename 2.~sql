@@ -1,0 +1,232 @@
+PL/SQL Developer Report
+
+[SQL]
+--按照职位调整工资 销售增加1000 manger+800 clerk+600其他+400
+ select e *
+ case e,job --使用职位作为判断的字段
+   where 'SALEMSAN' theer e.sal+1000 --销售+1000   
+   where 'MANAGER' there e .sal+800 --经理+800
+   where 'CLERK' there e.sal+600  --秘书+600
+   else e.sal+400
+   end
+from emp e;
+--decode(1，判断字段，值1，结果1 值2，)
+select e.*,
+decode(e.job,'SALESMAN',e.sal+1000,'MANAGER',e.sal+800,
+'CLERK',e.sal+600,e.sal+400) as --加工资后
+from emp e;
+--
+--ALLEW MARTIN KING
+select e.*,
+decode(e.ename,'ALLEW',nvl(e.comm,0)+2000,'MARTIN',nvl(e.comm,0)+2000,'KING',nvl(e.comm,0)+2000,nvl(e.comm,0)+1000） 加奖金
+from emp e;
+--以CLERK入职时间为参考 1981-06-09
+--sing(值1-值2)比较大小的函数，当值1>值2时结果为1
+--当值1<值2时，结果为-1 当值1=值2时，结果为0，常用来判断大小
+select sign(10-9) from dual;
+----
+select e.ename,
+decode(sign(e.hiredate-date'1981-06-09'),-1,'老员工',1,'新员工',0,'老油条')
+from emp e;
+------
+--以总收入2500作为判断依据，大于2500；高收入
+-----小于2500低收入 等于2500 小资收入
+select e.ename,
+decode(sign(e.sal+nvl(e.comm,0)-2500),-1,'高收入',0,'小资收入',-1,'低收入')
+from emp e;
+--rowid 是真时存在的列，使用roeid查找数据是效率最高的方式
+--rowid 记录的是数据保存的位置，值比较特
+--roeid(行号)是存在的列，不属于任何表
+select * from emp
+select e1.*from (select rownum rn,e.* from emp e)e1
+where e1.rn between 10 and 15;
+
+select rowid,e.ename
+from emp e;
+select * from emp;
+select e1.* from (select rownum rn,e.* from emp e) e1
+where e1.rn between 2 and 12;
+--查找出工资水平在整个公司排第三的员工信息
+select b.* 
+from(select rownum rn,a.* from
+(select e.*from emp e order by e.sal desc)a ) b
+where b.rn = 3 
+--按照入职时间排序 查找出入职时间在第5-10的员工
+select b.*
+select rownum rn,a.*
+from
+(select e.*from emp e order by e.hiredate a) b
+where b.rn between 5 and 10;
+
+--创建视图
+--视图，临时的数据表，只可以查询，不可以修改
+create view view_emp as select e.ename,e. job from emp e;
+select * from view_emp e order by e.ename 
+select e.job,count(1) from view_emp e qroup by e.job 
+drop view vw_emp;
+--为t_student表中的name列创建索引，相当于目录
+--提升了条件查询的效率
+--一般主键，查询较高的列，非空、一约
+create index t_studen name on t_student(name);
+select * from t_student where sex = '男';
+--创建序列,
+--相当于一组数字，默认从1开始
+create sequence emp_empno_seq;
+drop sequence emp_empno_seq;
+--查看当前排列的值
+select emp_empno_seq.currval from dual;
+select emp_empno_seq.nextval from dual;
+select * from t_student
+delete from t_student;
+--向表中插入数据时使用序列，实现自增效果
+insert into t_student values
+(emp_empno_seq.nextval,'刘备','男',date'2020-04-15',90);
+insert into t_student values
+(emp_empno_seq.nextval,'张飞','男',date'2020-04-16',80);
+insert into t_student values
+(emp_empno_seq.nextval,'关羽','男',date'2020-04-17',70);
+insert into t_student values
+(emp_empno_seq.nextval,'赵云','男',date'2020-04-18',60);
+commit;
+--plsql的使用
+declare  --准备工作
+   mynum number(3);--定义变量，同时声明数据类型
+begin  --开始执行
+  mynum := 10+100;  --将计算后的结果吾赋值给mynum
+  dbms_output.put_line('我的变量值为;'||mynum);
+end;--结束执行
+declare
+    i number(2) := 1;
+    ename varchar(20);  --定义变量
+begin
+  --当i>10时，退出循环 
+  while i <=10
+  loop
+    --将查出的e,ename 放到 ename变量中
+  select e.ename into ename from emp e where e.empno=7369;
+  dbms_output.put_line(ename);
+  end loop;
+ end;
+   
+        --当i>10时，退出循环
+        exit when i>10;
+        --输出i的值
+        dbms_output.put_line(i);
+        --变量自加
+        i := i + 1;  
+    end loop;
+end;
+--3 for循环
+declare
+  i number(3) := 1;
+  j number(3) := 1;
+begin
+  for i in 1 .. 9 -- 设定i的取值范围为1-9
+    loop --开始循环
+      for j in 1 .. i -- 设定j的取值范围为1-i
+        loop -- 开始循环
+          dbms_output.put(j||'x'||i||'='||i*j||' '); --不换行打印       
+        end loop;--结束循环
+        dbms_output.put_line(' ');--换行打印
+    end loop; --结束循环
+end;
+
+select * from t_student
+delete from t_student;
+
+create sequence ts;  --创建序列ts
+declare
+i number := 1;
+begin
+ for i in i..1000
+    loop
+      insert into t_student values
+      (ts.nextval,'孙悟空'||i,'男',dete,'2020-04-17',99);
+   end loop;
+ end;
+ declare ;
+  i number(2);
+begin;
+  i := &a; --&a是从键盘上取值（a可以用任意字母代替）
+-- if语句最多满足一个条件
+  if i in(1,3,5,7,8,10,12) then
+      dbms_output.put_line(i||'月有31天');
+  elsif i in(4,6,9,11) then
+      dbms_output.put_line(i||'月有30天');
+  elsif i=2 then
+      dbms_output.put_line(i||'月有28天');  
+  else 
+    dbms_output.put_line('无效月份:'||i);
+  end if; 
+end;
+
+declare
+    --定义二个变量，分别记录姓名和工资
+    pename   emp.ename%type;   --%示的是 的 的意思
+    psal       emp.sal%type;
+begin  
+    --PLSQL语句，将ename的值用pename变量名记录，sal的值用psal变量名记录   
+    select ename,sal into pename,psal from emp where empno = 7369;
+    --输出
+    dbms_output.put_line('7369号员工的姓名是'||pename||',薪水是'||psal);    
+end;
+--创建存
+create or replace procedure qiuhe(x in number,y in number,z out number)
+as
+begin
+z :=x+y;  --x,y相加好后赋值给z;
+end;
+
+--调用存储过程
+declare
+   x1 number :=100;
+   y1 number :=200;
+   z1 number;
+begin
+ qiuhe(x1,y1,z1);
+ dbms_output.put_line(z1);--调用qiuhe存储过程
+end;
+--
+crete create or replace package  is
+      
+        -- Author  : THINK
+        -- Created : 2020/4/17 17:24:30
+        -- Purpose : 
+        
+        -- Public type declarations
+        type <TypeName> is <Datatype>;
+        
+        -- Public constant declarations
+        <ConstantName> constant <Datatype> := <Value>;
+      
+        -- Public variable declarations
+        <VariableName> <Datatype>;
+      
+        -- Public function and procedure declarations
+        function <FunctionName>(<Parameter> <Datatype>) return <Datatype>;
+      
+      end ;
+      
+      --根据输入的员工名字，判断员工的岗位，不同的岗位
+      --加不同的工资
+      --创建存储过程，调用时需要输入员工名
+      create or replace procedure add_sal(v_name in varchar(2))
+      as
+      v_job varchar(20);  --声明变量用来存查询出的员工职位
+      v_addsal number;--取加工资的金额
+      begin
+        --查询出员工的职位
+        select job into v_job from emp1 where ename=v_name;
+        if v_job = 'MANAGER' then
+           v_addsal :=1000
+         elsif v_job ='SALESMAN' then
+           v_addsal :=800;
+         elsif v_job ='ANALYSY' then
+           v_addsal ；=500；
+           else
+             v_addsal ；=200
+             end if;
+      --更新表的数据，将工资加到对应的行中
+      update emp1 set sal = sal+v_addsal where ename=v_name;
+     dbms_output.put_line('你的岗位是;'||v_job',加工资的金额是;'||v_addsal);
+     end;
